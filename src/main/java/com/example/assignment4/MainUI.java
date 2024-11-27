@@ -14,6 +14,10 @@ public class MainUI extends StackPane {
 
         dView.setModel(model);
         dView.setupEvents(controller);
+        dView.setInteractionModel(iModel);
+
+        model.addSubscriber(dView);
+        iModel.addSubscriber(dView);
 
         dView.draw();
 
