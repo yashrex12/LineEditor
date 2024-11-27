@@ -20,6 +20,29 @@ public class LineModel {
         notifySubscribers();
         return line;
     }
+    public void removeLine(DLine line) {
+        lines.remove(line);
+        notifySubscribers();
+    }
+    public void moveLine(DLine line, double x, double y){
+        line.move(x, y);
+        notifySubscribers();
+    }
+    //detect and return which line is was clicked
+    public DLine whichLine(double x, double y){
+        return lines.stream()
+                .filter(e -> e.contains(x, y))
+                .findFirst()
+                .orElse(null);
+    }
+    // detect and return which line's endpoint was clicked
+    public DLine whichLineEndpoint(double x, double y){
+        for (DLine line : lines) {
+            if (line.checkEndpoint(x, y)) {
+                return line;
+            }
+        } return null;
+    }
     public void adjustLine(DLine line, double x2, double y2) {
         line.adjust(x2, y2);
         notifySubscribers();
