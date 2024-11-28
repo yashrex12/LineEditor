@@ -28,7 +28,29 @@ public class LineModel {
         line.move(x, y);
         notifySubscribers();
     }
-    //detect and return which line is was clicked
+    public void rotateLine(DLine line, double angle){
+        double cx = (line.getX1() + line.getX2()) / 2;
+        double cy = (line.getY1() + line.getY2()) / 2;
+        double newX1 = line.rotateX(line.getX1(), line.getY1(), cx, cy, angle);
+        double newY1 = line.rotateY(line.getX1(), line.getY1(), cx, cy, angle);
+        double newX2 = line.rotateX(line.getX2(), line.getY2(), cx, cy, angle);
+        double newY2 = line.rotateY(line.getX2(), line.getY2(), cx, cy, angle);
+        line.setX1(newX1);
+        line.setY1(newY1);
+        line.setX2(newX2);
+        line.setY2(newY2);
+        notifySubscribers();
+    }
+    public void scaleLine(DLine line, double scale){
+        double cx = (line.getX1() + line.getX2()) / 2;
+        double cy = (line.getY1() + line.getY2()) / 2;
+        line.setX1(line.scaleX(line.getX1(), line.getY1(), cx, cy, scale));
+        line.setY1(line.scaleY(line.getX1(), line.getY1(), cx, cy, scale));
+        line.setX2(line.scaleX(line.getX2(), line.getY2(), cx, cy, scale));
+        line.setY2(line.scaleY(line.getX2(), line.getY2(), cx, cy, scale));
+        notifySubscribers();
+    }
+    //detect and return which line was clicked
     public DLine whichLine(double x, double y){
         return lines.stream()
                 .filter(e -> e.contains(x, y))

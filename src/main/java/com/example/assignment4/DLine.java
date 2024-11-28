@@ -43,12 +43,17 @@ public class DLine {
         x2 += dX;
         y2 += dY;
     }
-    public Endpoint whichEndpoint(double x, double y) {
-        if(Math.hypot(x - x1, y - y1) < 10){
-            return new Endpoint(x1, y1);
-        }else {
-            return new Endpoint(x2, y2);
-        }
+    public double rotateX(double x, double y, double cx, double cy, double angle){
+        return cx + (x-cx) * Math.cos(angle) - (y-cy) * Math.sin(angle);
+    }
+    public double rotateY(double x, double y, double cx, double cy, double angle){
+        return cy + (x-cx) * Math.sin(angle) + (y-cy) * Math.cos(angle);
+    }
+    public double scaleX(double x, double y, double cx, double cy, double scale){
+        return cx + (x-cx) * scale;
+    }
+    public double scaleY(double x, double y, double cx, double cy, double scale){
+        return cy + (y-cy) * scale;
     }
     public boolean checkEndpoint(double x, double y) {
         double dX = x - this.getX2();
