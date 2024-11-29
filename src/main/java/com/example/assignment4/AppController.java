@@ -83,9 +83,16 @@ public class AppController {
             double snapY = Math.round(prevY/20) * 20;
             if (event.isShiftDown()){
                 DLine line = model.addLine(snapX, snapY, event.getX(), event.getY());
-                iModel.setSelectedLine(line);
+                iModel.clearSelectedLines();
+                iModel.addSelectedLine(line);
                 currentState = creating;
-            }else {
+            }if(event.isControlDown()){
+                DLine line = model.whichLine(event.getX(), event.getY());
+                if(line!=null){
+                    iModel.addSelectedLine(line);
+                }
+            }
+            else {
                 DLine line = model.whichLine(event.getX(), event.getY());
                 DLine epLine = model.whichLineEndpoint(event.getX(), event.getY());
                 if(epLine != null){
@@ -93,10 +100,11 @@ public class AppController {
                     currentState = dragEndpoint;
                 }
                 else if(line!=null){
-                    iModel.setSelectedLine(line);
+                    iModel.clearSelectedLines();
+                    iModel.addSelectedLine(line);
                     currentState = dragging;
                 }else {
-                    iModel.clearSelectedLine();
+                    iModel.clearSelectedLines();
                     currentState = ready;
                 }
             }

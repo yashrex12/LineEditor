@@ -48,7 +48,7 @@ public class DView extends StackPane implements Subscriber {
                 gc.strokeLine(dl.getX1(), dl.getY1(), dl.getX2(), dl.getY2());
             }
 
-            if(iModel.isSelectedLine(dl)){
+            if(iModel.getSelectedLines().contains(dl)){
                 gc.setStroke(Color.PINK);
                 gc.setLineWidth(2);
                 gc.strokeLine(dl.getX1(), dl.getY1(), dl.getX2(), dl.getY2());
