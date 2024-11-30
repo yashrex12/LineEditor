@@ -4,6 +4,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
+import java.util.List;
+
 public class AppController {
     private LineModel model;
     private InteractionModel iModel;
@@ -40,30 +42,30 @@ public class AppController {
     }
     public void handleKeyPressed(KeyEvent event){
         if(event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE){
-            if(iModel.getSelectedLine()!=null){
-                model.removeLine(iModel.getSelectedLine());
-                iModel.clearSelectedLine();
-            }
+            iModel.getSelectedLines().forEach(line ->{
+                model.removeLine(line);
+            });
+            iModel.clearSelectedLines();
         }
         if(event.getCode() == KeyCode.LEFT){
-            if(iModel.getSelectedLine()!=null){
-                model.rotateLine(iModel.getSelectedLine(),-Math.PI/15);
-            }
+            iModel.getSelectedLines().forEach(line ->{
+                model.rotateLine(line,-Math.PI/15);
+            });
         }
         if(event.getCode() == KeyCode.RIGHT){
-            if(iModel.getSelectedLine()!=null){
-                model.rotateLine(iModel.getSelectedLine(),Math.PI/15);
-            }
+            iModel.getSelectedLines().forEach(line ->{
+                model.rotateLine(line,Math.PI/15);
+            });
         }
         if(event.getCode() == KeyCode.UP){
-            if(iModel.getSelectedLine()!=null) {
-                model.scaleLine(iModel.getSelectedLine(), 1.2);
-            }
+            iModel.getSelectedLines().forEach(line ->{
+                model.scaleLine(line, 1.2);
+            });
         }
         if(event.getCode() == KeyCode.DOWN){
-            if(iModel.getSelectedLine()!=null) {
-                model.scaleLine(iModel.getSelectedLine(), 0.8);
-            }
+            iModel.getSelectedLines().forEach(line ->{
+                model.scaleLine(line, 0.8);
+            });
         }
     }
 
@@ -103,9 +105,10 @@ public class AppController {
                     iModel.clearSelectedLines();
                     iModel.addSelectedLine(line);
                     currentState = dragging;
-                }else {
-                    iModel.clearSelectedLines();
-                    currentState = ready;
+                }
+                else {
+                    iModel.startSelection(event.getX(), event.getY());
+                    currentState = rubberband;
                 }
             }
         }
@@ -153,6 +156,21 @@ public class AppController {
             model.adjustLine(iModel.getSelectedLine(), snapX2, snapY2);
             currentState = ready;
 
+        }
+    };
+    ControllerState rubberband = new ControllerState() {
+        public void handleDragged(MouseEvent event){
+            if(iModel.hasRubRect()){
+                iModel.continueSelection(event.getX(), event.getY());
+            }
+        }
+        public void handleReleased(MouseEvent event){
+            List<DLine> selectedLines = model.containsLine(iModel.rubRect);
+            if(!selectedLines.isEmpty()){
+                iModel.addSelectedLines(selectedLines);
+            }
+            iModel.removeRubRect();
+            currentState = ready;
         }
     };
 }
