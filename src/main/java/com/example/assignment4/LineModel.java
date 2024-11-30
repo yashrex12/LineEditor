@@ -69,6 +69,15 @@ public class LineModel {
         line.adjust(x2, y2);
         notifySubscribers();
     }
+    public List<DLine> containsLine(Rubberband rect){
+        ArrayList<DLine> rectLines = new ArrayList<>();
+        lines.forEach(dl ->{
+            if(rect.containsLine(dl)){
+                rectLines.add(dl);
+            }
+        });
+        return rectLines;
+    }
     public void addSubscriber(Subscriber subscriber) {
         subs.add(subscriber);
     }
