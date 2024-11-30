@@ -41,6 +41,14 @@ public class DView extends StackPane implements Subscriber {
             gc.strokeLine(0, i*20, 10000, i*20);
             gc.strokeLine(i*20, 0, i*20, 10000);
         }
+        if(iModel.hasRubRect()){
+            Rubberband rect = iModel.getRubRect();
+            gc.setStroke(Color.RED);
+            gc.setLineWidth(1);
+            gc.setLineDashes(10, 5);
+            gc.strokeRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+            gc.setLineDashes(0);
+        }
         model.getLines().forEach(dl ->{
             if(iModel.isHoveredLine(dl)){
                 gc.setStroke(Color.LIGHTGRAY);
