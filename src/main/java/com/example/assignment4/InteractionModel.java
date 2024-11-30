@@ -8,16 +8,22 @@ public class InteractionModel {
     private DLine hoveredLine;
     private ArrayList<Subscriber> subs;
     private List<DLine> selectedLines;
+    Rubberband rubRect;
 
     public InteractionModel(){
         selectedLine = null;
         subs = new ArrayList<>();
         selectedLines = new ArrayList<>();
+        rubRect = null;
     }
     public DLine getSelectedLine() {
         return selectedLine;
     }
     public void setSelectedLine(DLine line) {
+        selectedLines.clear();
+        if(line != null) {
+            selectedLines.add(line);
+        }
         selectedLine = line;
         notifySubscribers();
     }
@@ -26,6 +32,7 @@ public class InteractionModel {
     }
     public void clearSelectedLine(){
         selectedLine = null;
+        selectedLines.clear();
         notifySubscribers();
     }
     public List<DLine> getSelectedLines() {
@@ -34,10 +41,12 @@ public class InteractionModel {
     public void setSelectedLines(List<DLine> newSelectedLines) {
         selectedLines.clear();
         selectedLines.addAll(newSelectedLines);
+        selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
         notifySubscribers();
     }
     public void clearSelectedLines() {
         selectedLines.clear();
+        selectedLine = null;
         notifySubscribers();
     }
     public DLine getHoveredLine() {
@@ -58,12 +67,37 @@ public class InteractionModel {
     public void addSelectedLine(DLine line){
         if(selectedLines.contains(line)){
             selectedLines.remove(line);
+            if(selectedLine == line){
+                selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
+            }
         }else{
             selectedLines.add(line);
+            selectedLine = line;
         }
         notifySubscribers();
     }
-
+    public void addSelectedLines(List<DLine> lines){
+        lines.forEach(this::addSelectedLine);
+        selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
+        notifySubscribers();
+    }
+    public void startSelection(double x, double y){
+        rubRect = new Rubberband(x, y);
+    }
+    public void continueSelection(double x, double y){
+        rubRect.adjust(x, y);
+        notifySubscribers();
+    }
+    public boolean hasRubRect(){
+        return rubRect != null;
+    }
+    public Rubberband getRubRect() {
+        return rubRect;
+    }
+    public void removeRubRect(){
+        rubRect = null;
+        notifySubscribers();
+    }
     public void addSubscriber(Subscriber subscriber){
         subs.add(subscriber);
     }
