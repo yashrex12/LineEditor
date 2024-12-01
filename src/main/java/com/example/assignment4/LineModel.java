@@ -6,17 +6,23 @@ import java.util.List;
 public class LineModel {
     private List<DLine> lines;
     private List<Subscriber> subs;
+    private List<Groupable> items;
 
     public LineModel() {
         lines = new ArrayList<>();
+        items = new ArrayList<>();
         subs = new ArrayList<>();
     }
     public List<DLine> getLines() {
         return lines;
     }
+    public List<Groupable> getItems(){
+        return items;
+    }
     public DLine addLine(double x1, double y1, double x2, double y2) {
         DLine line = new DLine(x1, y1, x2, y2);
         lines.add(line);
+        items.add(line);    //new
         notifySubscribers();
         return line;
     }
@@ -26,6 +32,10 @@ public class LineModel {
     }
     public void moveLine(DLine line, double x, double y){
         line.move(x, y);
+        notifySubscribers();
+    }
+    public void moveItems(List<Groupable> items, double x,double y) {
+        items.forEach(item -> item.move(x, y));
         notifySubscribers();
     }
     public void rotateLine(DLine line, double angle){
@@ -50,12 +60,62 @@ public class LineModel {
         line.setY2(line.scaleY(line.getX2(), line.getY2(), cx, cy, scale));
         notifySubscribers();
     }
+    public void rotateGroup(Groupable group, double angle){
+        double cX = 0;
+        double cY = 0;
+        for (Groupable item : group.getChildren()){
+            if(item instanceof DLine line){
+                double lineCX = (line.getX1() + line.getX2()) / 2;
+                double lineCY = (line.getY1() + line.getY2()) / 2;
+                cX += lineCX;
+                cY += lineCY;
+            }
+        }
+        int numberOfLines = group.getChildren().size();
+        cX /= numberOfLines;
+        cY /= numberOfLines;
+        for (Groupable item : group.getChildren()){
+            if(item instanceof DLine line){
+                rotateLineAroundCenter(line, cX, cY, angle);
+            }
+        }
+    }
+    private void rotateLineAroundCenter(DLine line, double cx, double cy, double angle){
+        double newX1 = line.rotateX(line.getX1(), line.getY1(), cx, cy, angle);
+        double newY1 = line.rotateY(line.getX1(), line.getY1(), cx, cy, angle);
+        double newX2 = line.rotateX(line.getX2(), line.getY2(), cx, cy, angle);
+        double newY2 = line.rotateY(line.getX2(), line.getY2(), cx, cy, angle);
+        line.setX1(newX1);
+        line.setY1(newY1);
+        line.setX2(newX2);
+        line.setY2(newY2);
+        notifySubscribers();
+    }
     //detect and return which line was clicked
     public DLine whichLine(double x, double y){
         return lines.stream()
                 .filter(e -> e.contains(x, y))
                 .findFirst()
                 .orElse(null);
+    }
+    //group methods
+    public Groupable whichItem(double x, double y){
+        return items.stream()
+                .filter(i -> i.contains(x, y))
+                .findFirst()
+                .orElse(null);
+    }
+    public Groupable group(List<Groupable> selection){
+        DGroup dg = new DGroup();
+        dg.getChildren().addAll(selection);
+        items.removeAll(selection);
+        items.add(dg);
+        return dg;
+    }
+    public List<Groupable> ungroup(Groupable g){
+        items.addAll(g.getChildren());
+        items.remove(g);
+        return g.getChildren();
     }
     // detect and return which line's endpoint was clicked
     public DLine whichLineEndpoint(double x, double y){

@@ -33,7 +33,7 @@ public class AppController {
     }
     // detect hover over the line
     public void handleMouseMoved(MouseEvent event){
-        DLine line = model.whichLine(event.getX(), event.getY());
+        Groupable line = model.whichItem(event.getX(), event.getY());
         if(line != null){
             iModel.setHoveredLine(line);
         }else {
@@ -53,8 +53,8 @@ public class AppController {
             });
         }
         if(event.getCode() == KeyCode.RIGHT){
-            iModel.getSelectedLines().forEach(line ->{
-                model.rotateLine(line,Math.PI/15);
+            iModel.getSelectedGroups().forEach(group ->{
+                model.rotateGroup(group,Math.PI/15);
             });
         }
         if(event.getCode() == KeyCode.UP){
@@ -66,6 +66,17 @@ public class AppController {
             iModel.getSelectedLines().forEach(line ->{
                 model.scaleLine(line, 0.8);
             });
+        }
+        if(event.getCode() == KeyCode.G){
+            Groupable newGroup = model.group(iModel.getSelectedGroups());
+            iModel.clearSelectedGroups();
+            iModel.selectItems(newGroup);
+        }
+        if(event.getCode() == KeyCode.U){
+            if(iModel.selection.size() == 1 && iModel.selection.get(0).hasChildren()){
+                List<Groupable> items = model.ungroup(iModel.selection.get(0));
+                iModel.selectGroup(items);
+            }
         }
     }
 
@@ -84,26 +95,27 @@ public class AppController {
             double snapX = Math.round(prevX/20) * 20;
             double snapY = Math.round(prevY/20) * 20;
             if (event.isShiftDown()){
-                DLine line = model.addLine(snapX, snapY, event.getX(), event.getY());
-                iModel.clearSelectedLines();
-                iModel.addSelectedLine(line);
+                Groupable line = model.addLine(snapX, snapY, event.getX(), event.getY());
+                iModel.clearSelectedGroups();
+                iModel.selectItems(line);
                 currentState = creating;
             }if(event.isControlDown()){
-                DLine line = model.whichLine(event.getX(), event.getY());
-                if(line!=null){
-                    iModel.addSelectedLine(line);
+                Groupable g= model.whichItem(event.getX(), event.getY());
+                if(g!=null){
+                    iModel.selectItems(g);
                 }
             }
             else {
-                DLine line = model.whichLine(event.getX(), event.getY());
+//                DLine line = model.whichLine(event.getX(), event.getY());
+                Groupable line = model.whichItem(event.getX(), event.getY());
                 DLine epLine = model.whichLineEndpoint(event.getX(), event.getY());
                 if(epLine != null){
                     iModel.setSelectedLine(epLine);
                     currentState = dragEndpoint;
                 }
                 else if(line!=null){
-                    iModel.clearSelectedLines();
-                    iModel.addSelectedLine(line);
+                    iModel.clearSelectedGroups();
+                    iModel.selectItems(line);
                     currentState = dragging;
                 }
                 else {
@@ -144,7 +156,7 @@ public class AppController {
             double dY = event.getY() - prevY;
             prevX = event.getX();
             prevY = event.getY();
-            model.moveLine(iModel.getSelectedLine(), dX, dY);
+            model.moveItems(iModel.getSelectedGroups(), dX, dY);
         }
         public void handleReleased(MouseEvent event){
             double snapX1 = Math.round(iModel.getSelectedLine().getX1()/20) * 20;

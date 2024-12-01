@@ -34,41 +34,50 @@ public class DView extends StackPane implements Subscriber {
         canvas.setOnMouseMoved(controller::handleMouseMoved);
     }
 
-    public void draw(){
+    public void draw() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        for (int i=0; i<1000; i++){
+        for (int i = 0; i < 1000; i++) {
             gc.setStroke(Color.rgb(200, 200, 200, 0.7));
-            gc.strokeLine(0, i*20, 10000, i*20);
-            gc.strokeLine(i*20, 0, i*20, 10000);
+            gc.strokeLine(0, i * 20, 10000, i * 20);
+            gc.strokeLine(i * 20, 0, i * 20, 10000);
         }
-        if(iModel.hasRubRect()){
+        if (iModel.hasRubRect()) {
             Rubberband rect = iModel.getRubRect();
             gc.setStroke(Color.RED);
             gc.setLineWidth(1);
             gc.setLineDashes(10, 5);
-            gc.strokeRect(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+            gc.strokeRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
             gc.setLineDashes(0);
         }
-        model.getLines().forEach(dl ->{
-            if(iModel.isHoveredLine(dl)){
+        model.getItems().forEach(this::drawItem);
+    }
+
+    private void drawItem(Groupable g){
+        if(g.hasChildren()){
+            gc.setStroke(Color.HOTPINK);
+            gc.setLineWidth(1);
+            gc.strokeRect(g.getLeft(), g.getTop(), g.getRight() - g.getLeft(), g.getBottom() - g.getTop());
+            g.getChildren().forEach(this::drawItem);
+        }
+        else if(g instanceof DLine line){
+            if (iModel.isHoveredLine(line)){
                 gc.setStroke(Color.LIGHTGRAY);
                 gc.setLineWidth(10);
-                gc.strokeLine(dl.getX1(), dl.getY1(), dl.getX2(), dl.getY2());
+                gc.strokeLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
             }
-
-            if(iModel.getSelectedLines().contains(dl)){
+            if (iModel.getSelectedGroups().contains(g)){
                 gc.setStroke(Color.PINK);
                 gc.setLineWidth(2);
-                gc.strokeLine(dl.getX1(), dl.getY1(), dl.getX2(), dl.getY2());
+                gc.strokeLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
                 gc.setFill(Color.GREEN);
-                gc.fillOval(dl.getX1()-4, dl.getY1()-4, 8, 8);          //handle with radius 4
-                gc.fillOval(dl.getX2()-4, dl.getY2()-4, 8, 8);
+                gc.fillOval(line.getX1()-4, line.getY1()-4, 8, 8);          //handle with radius 4
+                gc.fillOval(line.getX2()-4, line.getY2()-4, 8, 8);
             }else {
                 gc.setStroke(Color.PURPLE);
                 gc.setLineWidth(1);
-                gc.strokeLine(dl.getX1(), dl.getY1(), dl.getX2(), dl.getY2());
+                gc.strokeLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
             }
-        });
+        }
     }
 
     @Override

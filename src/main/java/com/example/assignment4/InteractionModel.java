@@ -5,16 +5,18 @@ import java.util.List;
 
 public class InteractionModel {
     private DLine selectedLine;
-    private DLine hoveredLine;
+    private Groupable hoveredLine;
     private ArrayList<Subscriber> subs;
     private List<DLine> selectedLines;
+    List<Groupable> selection;
     Rubberband rubRect;
 
     public InteractionModel(){
         selectedLine = null;
+        rubRect = null;
         subs = new ArrayList<>();
         selectedLines = new ArrayList<>();
-        rubRect = null;
+        selection = new ArrayList<>();
     }
     public DLine getSelectedLine() {
         return selectedLine;
@@ -49,10 +51,10 @@ public class InteractionModel {
         selectedLine = null;
         notifySubscribers();
     }
-    public DLine getHoveredLine() {
-        return hoveredLine;
-    }
-    public void setHoveredLine(DLine line) {
+//    public DLine getHoveredLine() {
+//        return hoveredLine;
+//    }
+    public void setHoveredLine(Groupable line) {
         hoveredLine = line;
         notifySubscribers();
     }
@@ -98,6 +100,33 @@ public class InteractionModel {
         rubRect = null;
         notifySubscribers();
     }
+
+    public void selectItems(Groupable g){
+        addSelectedGroup(g);
+        notifySubscribers();
+    }
+    public void selectGroup(List<Groupable> items){
+        items.forEach(this::addSelectedGroup);
+        notifySubscribers();
+    }
+    public void addSelectedGroup(Groupable g){
+        if(selection.contains(g)){
+            selection.remove(g);
+        }else {
+            selection.add(g);
+        }
+    }
+    public boolean isSelectedGroup(Groupable g){
+        return selection.contains(g);
+    }
+    public List<Groupable> getSelectedGroups() {
+        return selection;
+    }
+    public void clearSelectedGroups() {
+        selection.clear();
+        notifySubscribers();
+    }
+
     public void addSubscriber(Subscriber subscriber){
         subs.add(subscriber);
     }
