@@ -54,9 +54,11 @@ public class DView extends StackPane implements Subscriber {
 
     private void drawItem(Groupable g){
         if(g.hasChildren()){
-            gc.setStroke(Color.HOTPINK);
-            gc.setLineWidth(1);
-            gc.strokeRect(g.getLeft(), g.getTop(), g.getRight() - g.getLeft(), g.getBottom() - g.getTop());
+            if(iModel.getSelectedGroups().contains(g)){
+                gc.setStroke(Color.HOTPINK);
+                gc.setLineWidth(1);
+                gc.strokeRect(g.getLeft(), g.getTop(), g.getRight() - g.getLeft(), g.getBottom() - g.getTop());
+            }
             g.getChildren().forEach(this::drawItem);
         }
         else if(g instanceof DLine line){

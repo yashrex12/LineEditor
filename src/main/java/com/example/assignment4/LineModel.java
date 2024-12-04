@@ -30,6 +30,15 @@ public class LineModel {
         lines.remove(line);
         notifySubscribers();
     }
+    public void removeItem(Groupable item) {
+        if(item instanceof DLine line){
+            lines.remove(line);
+        }else if(item instanceof DGroup group){
+            items.removeAll(group.getChildren());
+        }
+        items.remove(item);
+        notifySubscribers();
+    }
     public void moveLine(DLine line, double x, double y){
         line.move(x, y);
         notifySubscribers();
@@ -60,35 +69,39 @@ public class LineModel {
         line.setY2(line.scaleY(line.getX2(), line.getY2(), cx, cy, scale));
         notifySubscribers();
     }
-    public void rotateGroup(Groupable group, double angle){
-        double cX = 0;
-        double cY = 0;
-        for (Groupable item : group.getChildren()){
-            if(item instanceof DLine line){
-                double lineCX = (line.getX1() + line.getX2()) / 2;
-                double lineCY = (line.getY1() + line.getY2()) / 2;
-                cX += lineCX;
-                cY += lineCY;
+    public void rotateGroup(DGroup group, double angle){
+        double cx = (group.getLeft() + group.getRight()) / 2;
+        double cy = (group.getTop() + group.getBottom()) / 2;
+        for (Groupable child : group.getChildren()) {
+            if (child instanceof DLine line) {
+                double newX1 = line.rotateX(line.getX1(), line.getY1(), cx, cy, angle);
+                double newY1 = line.rotateY(line.getX1(), line.getY1(), cx, cy, angle);
+                double newX2 = line.rotateX(line.getX2(), line.getY2(), cx, cy, angle);
+                double newY2 = line.rotateY(line.getX2(), line.getY2(), cx, cy, angle);
+
+                line.setX1(newX1);
+                line.setY1(newY1);
+                line.setX2(newX2);
+                line.setY2(newY2);
+            } else if (child instanceof DGroup dGroup) {
+                rotateGroup(dGroup, angle); // Recursive rotation for nested groups
             }
         }
-        int numberOfLines = group.getChildren().size();
-        cX /= numberOfLines;
-        cY /= numberOfLines;
-        for (Groupable item : group.getChildren()){
-            if(item instanceof DLine line){
-                rotateLineAroundCenter(line, cX, cY, angle);
-            }
-        }
+        notifySubscribers();
     }
-    private void rotateLineAroundCenter(DLine line, double cx, double cy, double angle){
-        double newX1 = line.rotateX(line.getX1(), line.getY1(), cx, cy, angle);
-        double newY1 = line.rotateY(line.getX1(), line.getY1(), cx, cy, angle);
-        double newX2 = line.rotateX(line.getX2(), line.getY2(), cx, cy, angle);
-        double newY2 = line.rotateY(line.getX2(), line.getY2(), cx, cy, angle);
-        line.setX1(newX1);
-        line.setY1(newY1);
-        line.setX2(newX2);
-        line.setY2(newY2);
+    public void scaleGroup(DGroup group, double scale){
+        double cx = (group.getLeft() + group.getRight()) / 2;
+        double cy = (group.getTop() + group.getBottom()) / 2;
+        for (Groupable child : group.getChildren()) {
+            if (child instanceof DLine line) {
+                line.setX1(line.scaleX(line.getX1(), line.getY1(), cx, cy, scale));
+                line.setY1(line.scaleY(line.getX1(), line.getY1(), cx, cy, scale));
+                line.setX2(line.scaleX(line.getX2(), line.getY2(), cx, cy, scale));
+                line.setY2(line.scaleY(line.getX2(), line.getY2(), cx, cy, scale));
+            } else if(child instanceof DGroup dGroup) {
+                scaleGroup(dGroup, scale);
+            }
+        }
         notifySubscribers();
     }
     //detect and return which line was clicked
@@ -137,6 +150,15 @@ public class LineModel {
             }
         });
         return rectLines;
+    }
+    public List<Groupable> containsItem(Rubberband rect){
+        List<Groupable> rectItems = new ArrayList<>();
+        items.forEach(i ->{
+            if(rect.containsGroupable(i)){
+                rectItems.add(i);
+            }
+        });
+        return rectItems;
     }
     public void addSubscriber(Subscriber subscriber) {
         subs.add(subscriber);

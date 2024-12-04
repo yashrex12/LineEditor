@@ -42,29 +42,45 @@ public class AppController {
     }
     public void handleKeyPressed(KeyEvent event){
         if(event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE){
-            iModel.getSelectedLines().forEach(line ->{
-                model.removeLine(line);
+            iModel.getSelectedGroups().forEach(item ->{
+                model.removeItem(item);
             });
-            iModel.clearSelectedLines();
+            iModel.clearSelectedGroups();
         }
         if(event.getCode() == KeyCode.LEFT){
-            iModel.getSelectedLines().forEach(line ->{
-                model.rotateLine(line,-Math.PI/15);
+            iModel.getSelectedGroups().forEach(item ->{
+                if(item instanceof DLine line){
+                    model.rotateLine(line, -Math.PI/15);
+                }else if(item instanceof DGroup group){
+                    model.rotateGroup(group, -Math.PI/15);
+                }
             });
         }
         if(event.getCode() == KeyCode.RIGHT){
-            iModel.getSelectedGroups().forEach(group ->{
-                model.rotateGroup(group,Math.PI/15);
+            iModel.getSelectedGroups().forEach(item ->{
+                if(item instanceof DLine line){
+                    model.rotateLine(line, Math.PI/15);
+                }else if(item instanceof DGroup group){
+                    model.rotateGroup(group, Math.PI/15);
+                }
             });
         }
         if(event.getCode() == KeyCode.UP){
-            iModel.getSelectedLines().forEach(line ->{
-                model.scaleLine(line, 1.2);
+            iModel.getSelectedGroups().forEach(item ->{
+                if(item instanceof DLine line){
+                    model.scaleLine(line, 1.2);
+                }else if(item instanceof DGroup group){
+                    model.scaleGroup(group, 1.2);
+                }
             });
         }
         if(event.getCode() == KeyCode.DOWN){
-            iModel.getSelectedLines().forEach(line ->{
-                model.scaleLine(line, 0.8);
+            iModel.getSelectedGroups().forEach(item ->{
+                if(item instanceof DLine line){
+                    model.scaleLine(line, 0.8);
+                }else if(item instanceof DGroup group){
+                    model.scaleGroup(group, 0.8);
+                }
             });
         }
         if(event.getCode() == KeyCode.G){
@@ -103,6 +119,9 @@ public class AppController {
                 Groupable g= model.whichItem(event.getX(), event.getY());
                 if(g!=null){
                     iModel.selectItems(g);
+                }else{
+                    iModel.startSelection(event.getX(), event.getY());
+                    currentState = rubberband;
                 }
             }
             else {
@@ -119,8 +138,8 @@ public class AppController {
                     currentState = dragging;
                 }
                 else {
-                    iModel.startSelection(event.getX(), event.getY());
-                    currentState = rubberband;
+                    iModel.clearSelectedGroups();
+                    currentState = ready;
                 }
             }
         }
@@ -177,9 +196,9 @@ public class AppController {
             }
         }
         public void handleReleased(MouseEvent event){
-            List<DLine> selectedLines = model.containsLine(iModel.rubRect);
-            if(!selectedLines.isEmpty()){
-                iModel.addSelectedLines(selectedLines);
+            List<Groupable> selectedItems = model.containsItem(iModel.rubRect);
+            if(!selectedItems.isEmpty()){
+                iModel.selectGroup(selectedItems);
             }
             iModel.removeRubRect();
             currentState = ready;

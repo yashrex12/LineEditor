@@ -30,4 +30,17 @@ public class Rubberband {
     public boolean containsLine(DLine line){
         return contains(line.getX1(), line.getY1()) && contains(line.getX2(), line.getY2());
     }
+    public boolean containsGroupable(Groupable item){
+        if(item instanceof DLine line){
+            return contains(line.getX1(), line.getY1()) && contains(line.getX2(), line.getY2());
+        } else if(item instanceof DGroup group){
+            for(Groupable child: group.getChildren()){
+                if(!containsGroupable(child)){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

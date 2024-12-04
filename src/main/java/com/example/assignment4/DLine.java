@@ -68,7 +68,14 @@ public class DLine implements Groupable{
     public boolean contains(double x, double y) {
         double distance = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) /
                 Math.hypot(x2 - x1, y2 - y1);
-        return distance <= 5;
+        if(distance > 5) {
+            return false;
+        }
+        double minX = Math.min(x1, x2);
+        double minY = Math.min(y1, y2);
+        double maxX = Math.max(x1, x2);
+        double maxY = Math.max(y1, y2);
+        return (x>= minX && x<= maxX && y>= minY && y<= maxY);
     }
     public double getLeft(){
         return Math.min(x1, x2);
