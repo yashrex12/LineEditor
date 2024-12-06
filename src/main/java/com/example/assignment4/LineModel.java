@@ -26,6 +26,9 @@ public class LineModel {
         notifySubscribers();
         return line;
     }
+    public void addItems(List<Groupable> groupItems){
+        items.addAll(groupItems);
+    }
     public void removeLine(DLine line) {
         lines.remove(line);
         notifySubscribers();
@@ -38,6 +41,9 @@ public class LineModel {
         }
         items.remove(item);
         notifySubscribers();
+    }
+    public void removeLines(List<Groupable> groupItems){
+        items.removeAll(groupItems);
     }
     public void moveLine(DLine line, double x, double y){
         line.move(x, y);

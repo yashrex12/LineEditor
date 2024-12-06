@@ -42,12 +42,14 @@ public class AppController {
     }
     public void handleKeyPressed(KeyEvent event){
         if(event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE){
+            iModel.addRemoveCommand(model, iModel.getSelectedGroups());
             iModel.getSelectedGroups().forEach(item ->{
                 model.removeItem(item);
             });
             iModel.clearSelectedGroups();
         }
         if(event.getCode() == KeyCode.LEFT){
+            iModel.addRotateCommand(model, iModel.getSelectedGroups(), -Math.PI/15);
             iModel.getSelectedGroups().forEach(item ->{
                 if(item instanceof DLine line){
                     model.rotateLine(line, -Math.PI/15);
@@ -57,6 +59,7 @@ public class AppController {
             });
         }
         if(event.getCode() == KeyCode.RIGHT){
+            iModel.addRotateCommand(model, iModel.getSelectedGroups(), Math.PI/15);
             iModel.getSelectedGroups().forEach(item ->{
                 if(item instanceof DLine line){
                     model.rotateLine(line, Math.PI/15);
@@ -66,6 +69,7 @@ public class AppController {
             });
         }
         if(event.getCode() == KeyCode.UP){
+            iModel.addScaleCommand(model, iModel.getSelectedGroups(), 1.2);
             iModel.getSelectedGroups().forEach(item ->{
                 if(item instanceof DLine line){
                     model.scaleLine(line, 1.2);
@@ -75,6 +79,7 @@ public class AppController {
             });
         }
         if(event.getCode() == KeyCode.DOWN){
+            iModel.addScaleCommand(model, iModel.getSelectedGroups(), 0.8);
             iModel.getSelectedGroups().forEach(item ->{
                 if(item instanceof DLine line){
                     model.scaleLine(line, 0.8);
@@ -84,15 +89,25 @@ public class AppController {
             });
         }
         if(event.getCode() == KeyCode.G){
+            iModel.addGroupCommand(model, iModel.selection);
             Groupable newGroup = model.group(iModel.getSelectedGroups());
             iModel.clearSelectedGroups();
             iModel.selectItems(newGroup);
+
         }
         if(event.getCode() == KeyCode.U){
-            if(iModel.selection.size() == 1 && iModel.selection.get(0).hasChildren()){
-                List<Groupable> items = model.ungroup(iModel.selection.get(0));
+            iModel.addUngroupCommand(model, iModel.selection.getFirst());
+            if(iModel.selection.size() == 1 && iModel.selection.getFirst().hasChildren()){
+                List<Groupable> items = model.ungroup(iModel.selection.getFirst());
                 iModel.selectGroup(items);
+
             }
+        }
+        if(event.getCode() == KeyCode.Z){
+            iModel.undo();
+        }
+        if(event.getCode() == KeyCode.R){
+            iModel.redo();
         }
     }
 
@@ -112,6 +127,7 @@ public class AppController {
             double snapY = Math.round(prevY/20) * 20;
             if (event.isShiftDown()){
                 Groupable line = model.addLine(snapX, snapY, event.getX(), event.getY());
+                iModel.addCreateCommand(model, line);
                 iModel.clearSelectedGroups();
                 iModel.selectItems(line);
                 currentState = creating;
@@ -131,11 +147,13 @@ public class AppController {
                 if(epLine != null){
                     iModel.setSelectedLine(epLine);
                     currentState = dragEndpoint;
+                    iModel.startResizeCommand(model, prevX, prevY);
                 }
                 else if(line!=null){
                     iModel.clearSelectedGroups();
                     iModel.selectItems(line);
                     currentState = dragging;
+                    iModel.startDragCommand(model, prevX, prevY);
                 }
                 else {
                     iModel.clearSelectedGroups();
@@ -166,6 +184,7 @@ public class AppController {
             double snapX = Math.round(iModel.getSelectedLine().getX2()/20) * 20;
             double snapY = Math.round(iModel.getSelectedLine().getY2()/20) * 20;
             model.adjustLine(iModel.getSelectedLine(), snapX, snapY);
+            iModel.finishResizeCommand(event.getX(), event.getY());
             currentState = ready;
         }
     };
@@ -185,6 +204,7 @@ public class AppController {
             iModel.getSelectedLine().setX1(snapX1);
             iModel.getSelectedLine().setY1(snapY1);
             model.adjustLine(iModel.getSelectedLine(), snapX2, snapY2);
+            iModel.finishDragCommand(event.getX(), event.getY());
             currentState = ready;
 
         }
