@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+// Main application class to run LineEditor
 public class EditorApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {

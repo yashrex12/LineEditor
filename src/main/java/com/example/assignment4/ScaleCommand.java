@@ -3,6 +3,7 @@ package com.example.assignment4;
 import java.util.ArrayList;
 import java.util.List;
 
+// command to scale an item
 public class ScaleCommand implements DCommand{
     List<Groupable> items;
     LineModel model;
@@ -16,6 +17,7 @@ public class ScaleCommand implements DCommand{
 
     @Override
     public void doIt(){
+        // scale up an object
         for (Groupable item : items) {
             if(item instanceof DLine line){
                 model.scaleLine(line, scaleFactor);
@@ -27,6 +29,7 @@ public class ScaleCommand implements DCommand{
 
     @Override
     public void undo(){
+        // scale down an object
         for (Groupable item : items) {
             if(item instanceof DLine line){
                 model.scaleLine(line, 1/scaleFactor);

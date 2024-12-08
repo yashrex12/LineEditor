@@ -3,18 +3,20 @@ package com.example.assignment4;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+// Group for group objects
 public class DGroup implements Groupable {
-    ArrayList<Groupable> items;
+    private ArrayList<Groupable> items;
+
     public DGroup() {
         items = new ArrayList<>();
     }
-    public void addItem(Groupable item) {
-        items.add(item);
-    }
+
+    // move the group and its children
     public void move(double dx, double dy) {
         items.forEach(item -> item.move(dx, dy));
     }
 
+    // check any of the clicked item are contained within the group
     @Override
     public boolean contains(double x, double y) {
         return items.stream().anyMatch(item -> item.contains(x, y));

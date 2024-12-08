@@ -6,6 +6,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.util.List;
 
+// class to handle user interactions and make changes to the model
 public class AppController {
     private LineModel model;
     private InteractionModel iModel;
@@ -31,6 +32,7 @@ public class AppController {
     public void handleDragged(MouseEvent event){
         currentState.handleDragged(event);
     }
+
     // detect hover over the line
     public void handleMouseMoved(MouseEvent event){
         Groupable line = model.whichItem(event.getX(), event.getY());
@@ -41,6 +43,7 @@ public class AppController {
         }
     }
     public void handleKeyPressed(KeyEvent event){
+        // delete an item (group or a line)
         if(event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE){
             iModel.addRemoveCommand(model, iModel.getSelectedGroups());
             iModel.getSelectedGroups().forEach(item ->{
@@ -48,6 +51,7 @@ public class AppController {
             });
             iModel.clearSelectedGroups();
         }
+        // rotate an item anti-clockwise
         if(event.getCode() == KeyCode.LEFT){
             iModel.addRotateCommand(model, iModel.getSelectedGroups(), -Math.PI/15);
             iModel.getSelectedGroups().forEach(item ->{
@@ -58,6 +62,7 @@ public class AppController {
                 }
             });
         }
+        // rotate an item clockwise
         if(event.getCode() == KeyCode.RIGHT){
             iModel.addRotateCommand(model, iModel.getSelectedGroups(), Math.PI/15);
             iModel.getSelectedGroups().forEach(item ->{
@@ -68,6 +73,7 @@ public class AppController {
                 }
             });
         }
+        // scale up an item
         if(event.getCode() == KeyCode.UP){
             iModel.addScaleCommand(model, iModel.getSelectedGroups(), 1.2);
             iModel.getSelectedGroups().forEach(item ->{
@@ -78,6 +84,7 @@ public class AppController {
                 }
             });
         }
+        // scale down an item
         if(event.getCode() == KeyCode.DOWN){
             iModel.addScaleCommand(model, iModel.getSelectedGroups(), 0.8);
             iModel.getSelectedGroups().forEach(item ->{
@@ -88,6 +95,7 @@ public class AppController {
                 }
             });
         }
+        // group items together
         if(event.getCode() == KeyCode.G){
             iModel.addGroupCommand(model, iModel.selection);
             Groupable newGroup = model.group(iModel.getSelectedGroups());
@@ -95,6 +103,7 @@ public class AppController {
             iModel.selectItems(newGroup);
 
         }
+        // ungroup the group or first child of a nested group
         if(event.getCode() == KeyCode.U){
             iModel.addUngroupCommand(model, iModel.selection.getFirst());
             if(iModel.selection.size() == 1 && iModel.selection.getFirst().hasChildren()){
@@ -103,9 +112,11 @@ public class AppController {
 
             }
         }
+        // undo a command
         if(event.getCode() == KeyCode.Z){
             iModel.undo();
         }
+        // redo a command
         if(event.getCode() == KeyCode.R){
             iModel.redo();
         }
@@ -123,28 +134,32 @@ public class AppController {
         public void handlePressed(MouseEvent event) {
             prevX = event.getX();
             prevY = event.getY();
-            double snapX = Math.round(prevX/20) * 20;
-            double snapY = Math.round(prevY/20) * 20;
+            double snapX = Math.round(prevX/20) * 20;       //snap to nearest grid point
+            double snapY = Math.round(prevY/20) * 20;       //snap to nearest grid point
             if (event.isShiftDown()){
+                // create a line
                 Groupable line = model.addLine(snapX, snapY, event.getX(), event.getY());
-                iModel.addCreateCommand(model, line);
+                iModel.addCreateCommand(model, line);       // add it on to the stacks
                 iModel.clearSelectedGroups();
                 iModel.selectItems(line);
                 currentState = creating;
-            }if(event.isControlDown()){
+            }
+            if(event.isControlDown()){
                 Groupable g= model.whichItem(event.getX(), event.getY());
                 if(g!=null){
+                    // enable multiple selection by clicking on items
                     iModel.selectItems(g);
                 }else{
+                    // start a rubberband rectangle
                     iModel.startSelection(event.getX(), event.getY());
                     currentState = rubberband;
                 }
             }
             else {
-//                DLine line = model.whichLine(event.getX(), event.getY());
                 Groupable line = model.whichItem(event.getX(), event.getY());
                 DLine epLine = model.whichLineEndpoint(event.getX(), event.getY());
                 if(epLine != null){
+                    // allow resizing of a line
                     iModel.setSelectedLine(epLine);
                     currentState = dragEndpoint;
                     iModel.startResizeCommand(model, prevX, prevY);
@@ -156,6 +171,7 @@ public class AppController {
                     iModel.startDragCommand(model, prevX, prevY);
                 }
                 else {
+                    // click on background unselects
                     iModel.clearSelectedGroups();
                     currentState = ready;
                 }
@@ -172,7 +188,7 @@ public class AppController {
         public void handleReleased(MouseEvent event){
             double snapX = Math.round(event.getX()/20) * 20;
             double snapY = Math.round(event.getY()/20) * 20;
-            model.adjustLine(iModel.getSelectedLine(), snapX, snapY);
+            model.adjustLine(iModel.getSelectedLine(), snapX, snapY);   // snap to the nearest grid point
             currentState = ready;
         }
     };
@@ -183,7 +199,7 @@ public class AppController {
         public void handleReleased(MouseEvent event){
             double snapX = Math.round(iModel.getSelectedLine().getX2()/20) * 20;
             double snapY = Math.round(iModel.getSelectedLine().getY2()/20) * 20;
-            model.adjustLine(iModel.getSelectedLine(), snapX, snapY);
+            model.adjustLine(iModel.getSelectedLine(), snapX, snapY);       //snap to the nearest grid point
             iModel.finishResizeCommand(event.getX(), event.getY());
             currentState = ready;
         }
@@ -197,6 +213,7 @@ public class AppController {
             model.moveItems(iModel.getSelectedGroups(), dX, dY);
         }
         public void handleReleased(MouseEvent event){
+            // snap the line to nearest grid points after dragging
             double snapX1 = Math.round(iModel.getSelectedLine().getX1()/20) * 20;
             double snapY1 = Math.round(iModel.getSelectedLine().getY1()/20) * 20;
             double snapX2 = Math.round(iModel.getSelectedLine().getX2()/20) * 20;
@@ -212,15 +229,17 @@ public class AppController {
     ControllerState rubberband = new ControllerState() {
         public void handleDragged(MouseEvent event){
             if(iModel.hasRubRect()){
+                // keep dragging the rectangle
                 iModel.continueSelection(event.getX(), event.getY());
             }
         }
         public void handleReleased(MouseEvent event){
+            // select or unselect items in the rectangle
             List<Groupable> selectedItems = model.containsItem(iModel.rubRect);
             if(!selectedItems.isEmpty()){
                 iModel.selectGroup(selectedItems);
             }
-            iModel.removeRubRect();
+            iModel.removeRubRect();     // clears the rectangle after click release
             currentState = ready;
         }
     };

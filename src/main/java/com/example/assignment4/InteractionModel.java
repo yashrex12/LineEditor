@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+// store temporary changes and selections
 public class InteractionModel {
     private DLine selectedLine;
     private Groupable hoveredLine;
@@ -46,6 +47,8 @@ public class InteractionModel {
         hoveredLine = null;
         notifySubscribers();
     }
+
+    // start rubber band rectangle
     public void startSelection(double x, double y){
         rubRect = new Rubberband(x, y);
     }
@@ -64,14 +67,18 @@ public class InteractionModel {
         notifySubscribers();
     }
 
+    // multiple selection
+    // select a line or a group
     public void selectItems(Groupable g){
         addSelectedGroup(g);
         notifySubscribers();
     }
+    // select multiple items
     public void selectGroup(List<Groupable> items){
         items.forEach(this::addSelectedGroup);
         notifySubscribers();
     }
+    // add if unselected and remove if selected.
     public void addSelectedGroup(Groupable g){
         if(selection.contains(g)){
             selection.remove(g);
@@ -87,12 +94,16 @@ public class InteractionModel {
         notifySubscribers();
     }
 
+    // commands for undo and redo
+    // command for moving an item (line or a group)
     public void startDragCommand(LineModel model, double x, double y){
         dragCommand = new DragCommand(model, selection, x, y);
     }
+    // adjusting endpoint of a line
     public void startResizeCommand(LineModel model, double x, double y){
         resizeCommand  = new ResizeCommand(model, selectedLine, x, y);
     }
+    // finish commands if changed by at least 1 pixel
     public void finishDragCommand(double x, double y){
         dragCommand.finishMove(x, y);
         if(dragCommand.dx > 0 || dragCommand.dy > 0){
@@ -105,6 +116,7 @@ public class InteractionModel {
             addUndo(resizeCommand);
         }
     }
+    // push a command onto the undo stack
     public void addUndo(DCommand command){
         redoStack.clear();
         undoStack.push(command);
@@ -136,6 +148,8 @@ public class InteractionModel {
         ungroupCommand.doIt();
         addUndo(ungroupCommand);
     }
+
+    // Undo the last used command and push it onto redo stack
     public void undo(){
         if(undoStack.isEmpty()){
             System.out.println("Nothing to undo");
@@ -146,6 +160,7 @@ public class InteractionModel {
         }
         notifySubscribers();
     }
+    // Redo the last undone command and push it onto the undo stack
     public void redo(){
         if(redoStack.isEmpty()){
             System.out.println("Nothing to redo");

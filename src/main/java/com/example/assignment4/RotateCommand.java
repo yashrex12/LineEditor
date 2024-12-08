@@ -3,6 +3,7 @@ package com.example.assignment4;
 import java.util.ArrayList;
 import java.util.List;
 
+// command for rotating an item
 public class RotateCommand implements DCommand{
     List<Groupable> items;
     LineModel model;
@@ -15,6 +16,7 @@ public class RotateCommand implements DCommand{
     }
     @Override
     public void doIt() {
+        // rotate an item
         for(Groupable item : items) {
             if(item instanceof DLine line){
                 model.rotateLine(line, angle);
@@ -26,6 +28,7 @@ public class RotateCommand implements DCommand{
 
     @Override
     public void undo() {
+        // rotate back by previously rotated amount
         for(Groupable item : items) {
             if(item instanceof DLine line){
                 model.rotateLine(line, -angle);

@@ -3,6 +3,7 @@ package com.example.assignment4;
 import java.util.ArrayList;
 import java.util.List;
 
+// command for grouping elements
 public class GroupCommand implements DCommand{
     LineModel model;
     InteractionModel iModel;
@@ -17,6 +18,7 @@ public class GroupCommand implements DCommand{
 
     @Override
     public void doIt() {
+        // group selected items
         group = model.group(items);
         iModel.clearSelectedGroups();
         iModel.selectItems(group);
@@ -24,6 +26,7 @@ public class GroupCommand implements DCommand{
 
     @Override
     public void undo() {
+        // ungroup the last grouped items
         model.ungroup(group);
         iModel.clearSelectedGroups();
         iModel.selectGroup(items);

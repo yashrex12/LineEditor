@@ -2,6 +2,7 @@ package com.example.assignment4;
 
 import java.util.List;
 
+// command for ungrouping
 public class UngroupCommand implements DCommand{
     LineModel model;
     InteractionModel iModel;
@@ -15,12 +16,14 @@ public class UngroupCommand implements DCommand{
     }
     @Override
     public void doIt() {
+        // ungroup and select ungrouped items
         ungroupedItems = model.ungroup(group);
         iModel.selectGroup(ungroupedItems);
     }
 
     @Override
     public void undo() {
+        // group back the ungrouped items
         Groupable group = model.group(ungroupedItems);
         iModel.clearSelectedGroups();
         iModel.selectItems(group);
