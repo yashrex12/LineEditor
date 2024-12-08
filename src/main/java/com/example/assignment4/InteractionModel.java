@@ -35,31 +35,6 @@ public class InteractionModel {
         selectedLine = line;
         notifySubscribers();
     }
-    public boolean isSelectedLine(DLine line) {
-        return selectedLine == line;
-    }
-    public void clearSelectedLine(){
-        selectedLine = null;
-        selectedLines.clear();
-        notifySubscribers();
-    }
-    public List<DLine> getSelectedLines() {
-        return selectedLines;
-    }
-    public void setSelectedLines(List<DLine> newSelectedLines) {
-        selectedLines.clear();
-        selectedLines.addAll(newSelectedLines);
-        selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
-        notifySubscribers();
-    }
-    public void clearSelectedLines() {
-        selectedLines.clear();
-        selectedLine = null;
-        notifySubscribers();
-    }
-//    public DLine getHoveredLine() {
-//        return hoveredLine;
-//    }
     public void setHoveredLine(Groupable line) {
         hoveredLine = line;
         notifySubscribers();
@@ -69,24 +44,6 @@ public class InteractionModel {
     }
     public void clearHoveredLine(){
         hoveredLine = null;
-        notifySubscribers();
-    }
-
-    public void addSelectedLine(DLine line){
-        if(selectedLines.contains(line)){
-            selectedLines.remove(line);
-            if(selectedLine == line){
-                selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
-            }
-        }else{
-            selectedLines.add(line);
-            selectedLine = line;
-        }
-        notifySubscribers();
-    }
-    public void addSelectedLines(List<DLine> lines){
-        lines.forEach(this::addSelectedLine);
-        selectedLine = selectedLines.isEmpty() ? null : selectedLines.getFirst();
         notifySubscribers();
     }
     public void startSelection(double x, double y){
@@ -121,9 +78,6 @@ public class InteractionModel {
         }else {
             selection.add(g);
         }
-    }
-    public boolean isSelectedGroup(Groupable g){
-        return selection.contains(g);
     }
     public List<Groupable> getSelectedGroups() {
         return selection;
