@@ -16,6 +16,7 @@ public class UngroupCommand implements DCommand{
     @Override
     public void doIt() {
         ungroupedItems = model.ungroup(group);
+        iModel.selectGroup(ungroupedItems);
     }
 
     @Override
