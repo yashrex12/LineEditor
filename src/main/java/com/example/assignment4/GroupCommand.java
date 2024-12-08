@@ -12,7 +12,7 @@ public class GroupCommand implements DCommand{
     public GroupCommand(LineModel model, InteractionModel iModel, List<Groupable> groupItems) {
         this.model = model;
         this.iModel = iModel;
-        this.items = groupItems;
+        items = new ArrayList<>(groupItems);
     }
 
     @Override
@@ -25,5 +25,7 @@ public class GroupCommand implements DCommand{
     @Override
     public void undo() {
         model.ungroup(group);
+        iModel.clearSelectedGroups();
+        iModel.selectGroup(items);
     }
 }
