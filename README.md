@@ -18,6 +18,12 @@ A single window desktop application where you can draw lines and play around wit
   of separation allows to scale the model to include multiple views (single or multiple screens), to have multiple
   models to accommodate multiple objects and to build controllers to capture events separately for each view if needed.
 
+  To Run the application
+    - Open the application in IDE such as IntelliJ, Eclipse or VSCode
+    - Go to the path ./src/main/java/com/example/assignment4
+    - Run the main function from EditorApp.java 
+    - Enjoy the experience!
+
   I hope you like my implementation of MVC architecture. Please leave a like or email me on yashab128151@gmail.com to
   learn more about the MVC Architecture and how to implement it.
 
